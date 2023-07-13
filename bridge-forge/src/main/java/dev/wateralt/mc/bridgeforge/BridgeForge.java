@@ -7,14 +7,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,25 +56,21 @@ public class BridgeForge
     }
 
     @SubscribeEvent
-    public void onEntityJoinWorld(EntityJoinWorldEvent event) throws IOException {
-        if(event.getEntity() instanceof Player) {
-            sendMsg(new Packets.BDMessage(
-                cfg.serverName.get(),
-                "sys",
-                "%s joined the game".formatted(event.getEntity().getName().toString())
-            ));
-        }
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) throws IOException {
+        sendMsg(new Packets.BDMessage(
+            cfg.serverName.get(),
+            "sys",
+            "%s joined the game".formatted(event.getEntity().getName().getString())
+        ));
     }
 
     @SubscribeEvent
-    public void onEntityLeaveWorld(EntityLeaveWorldEvent event) throws IOException {
-        if(event.getEntity() instanceof Player) {
-            sendMsg(new Packets.BDMessage(
-                cfg.serverName.get(),
-                "sys",
-                "%s left the game".formatted(event.getEntity().getName().toString())
-            ));
-        }
+    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) throws IOException {
+        sendMsg(new Packets.BDMessage(
+            cfg.serverName.get(),
+            "sys",
+            "%s left the game".formatted(event.getEntity().getName().getString())
+        ));
     }
 
     @SubscribeEvent
@@ -86,7 +79,7 @@ public class BridgeForge
             sendMsg(new Packets.BDMessage(
                 cfg.serverName.get(),
                 "sys",
-                event.getSource().getLocalizedDeathMessage(event.getEntityLiving()).toString()
+                event.getSource().getLocalizedDeathMessage(event.getEntityLiving()).getString()
             ));
         }
     }
